@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package kvs;
+
+service Kvs {
+  rpc AskTable (TableRequest) returns (TableReply) {}
+  rpc Greet (GreetRequest) returns (GreetReply) {}
+  rpc UpdateConnection(ConnRequest) returns (EmptyReply) {}
+  rpc Get (GetRequest) returns (GetReply) {}
+  rpc Put (PutRequest) returns (EmptyReply) {}
+  rpc Delete (DeleteRequest) returns (DeleteReply) {}
+
+  rpc PreCput(PreCputRequest) returns (PreCputReply) {}
+  rpc CputCheck(CputCheckRequest) returns (CputCheckReply) {}
+  rpc CputPut(PutRequest) returns (EmptyReply) {}
+
+  rpc CheckPoint(CheckPointRequest) returns (EmptyReply) {}
+
+  rpc Empty(EmptyRequest) returns (EmptyReply) {}
+  rpc Shutdown(ShutdownRequest) returns (EmptyReply) {}
+
+  rpc Alive(AliveRequest) returns (AliveReply) {}
+  rpc DownloadCheckPoint(EmptyRequest) returns(DataAndLog) {}
+  // rpc Put (PutRequest) returns (Empty) {}
+  // rpc Cput(CputRequest) returns (Empty) {}
+  // rpc Delete(DeleteRequest) returns (Empty) {}
+}
+
+enum Type {
+  PUT = 0;
+  DELETE = 1;
+}
+
+message Operation {
+  string table_name = 1;
+  string row_key = 2;
+  repeated kvs.ColFamily col_families = 3;
+  Type type = 4;
+  string id = 5;
+}
+
+message Log {
+  repeated Operation operations = 1;
+}
+
+message Table {
+  string table_name = 1;
+  repeated Row rows = 2;
+};
+
+message Row {
+  string row_key = 1;
+  repeated ColFamily col_families = 2;
+};
+
+message Data {
+  repeated Table tables = 1;
+  int32 version = 2;
+};
+
+message DataAndLog {
+  Data data = 1;
+  Log log = 2;
+}
+
+message ShutdownRequest {
+  bool is_terminated = 1;
+}
+
+message GreetReply {
+  bool is_new = 1;
+}
+
+message AliveRequest {
+  string src_addr = 1;
+}
+
+message AliveReply {
+  string alive_addr = 1;
+}
+
+message CheckPointRequest {
+  int32 version = 1;
+}
+
+message Col {
+  string col = 2;
+  bytes content = 3;
+}
+
+message ColFamily {
+  string col_family = 1;
+  repeated Col cols = 2;
+}
+
+// return a 
+message GetReply {
+  // string row_key = 1;
+  repeated ColFamily col_families = 1;
+  string message = 2;
+}
+
+message GetRequest {
+  string table_name = 1;
+  string row_key = 2;
+}
+
+message PutRequest {
+  string table_name = 1;
+  string row_key = 2;
+  repeated ColFamily col_families = 3;
+  string message = 4;
+}
+
+message PreCputRequest {
+  string table_name = 1;
+  string row_key = 2;
+  bool acquire_or_abort = 3;
+}
+
+message PreCputReply {
+  bool is_locked = 1;
+  string message = 2;
+}
+
+message CputCheckRequest {
+  string table_name = 1;
+  string row_key = 2;
+  string col_family = 3;
+  string col = 4;
+  bytes content = 5;
+}
+
+message CputCheckReply {
+  bool is_same = 1;
+}
+
+message DeleteRequest {
+  string table_name = 1;
+  string row_key = 2;
+  repeated ColFamily col_families = 3;
+  string message = 4;
+}
+
+message DeleteReply {
+  bool is_succeeded = 1;
+}
+
+message GreetRequest {
+  string slave_address = 1;
+  string replicate_slave_address = 2;
+}
+
+message Slave {
+  string addr = 1;
+  int32 connections = 2;
+  bool is_alive = 3;
+}
+
+message Pair {
+  uint64 key = 1;
+  repeated Slave slaves = 2;
+}
+
+message ConnRequest {
+  string addr = 1;
+  int32 delta = 2;
+}
+
+message EmptyReply {
+  string message = 1;
+}
+
+message EmptyRequest {
+
+}
+
+message TableRequest {
+  string table_name = 1;
+  string name = 2;
+  repeated string phone = 3;
+}
+
+message TableReply {
+  repeated Pair pairs = 1;
+  // repeated string server_addrs = 1;
+  // repeated string keys = 2; // the number of keys should be exactly equal to the number of server addresses minus 1
+  string message = 3;
+}
+
+message SlaveRequest {
+  string table_name = 1;
+  string name = 2;
+  repeated string phone = 3;
+}
+
+message SlaveReply {
+  repeated Pair pairs = 1;
+  // repeated string server_addrs = 1;
+  // repeated string keys = 2; // the number of keys should be exactly equal to the number of server addresses minus 1
+  string message = 3;
+}
