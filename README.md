@@ -11,7 +11,7 @@ The cloud platform will have a webmail service, analogous to Gmail, as well as a
 * Admin Console
 
 ## Usage
-** Setup Instruction: **
+**Setup Instruction:**
 
 In order to successfully run the program, protocol buffer 3.5.0 needs to be installed (and it needs to be 3.5.0), grpc needs to be installed as well, and you need to build from source. For detailed instructions, please check https://github.com/grpc/grpc/blob/master/INSTALL.md .
 
